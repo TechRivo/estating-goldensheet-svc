@@ -9,6 +9,7 @@ version = '0.0.1'
 
 ext{
 	springCloudVersion = '2022.0.3'
+	apachePoiVersion = '5.2.3'
 }
 
 jar {
@@ -34,6 +35,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	implementation "org.apache.poi:poi:${apachePoiVersion}"
+	implementation "org.apache.poi:poi-ooxml:${apachePoiVersion}"
 	implementation 'org.apache.commons:commons-lang3:3.13.0'
 
 	compileOnly 'org.projectlombok:lombok'
