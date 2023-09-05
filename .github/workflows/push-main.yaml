@@ -1,0 +1,36 @@
+name: push into main
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  gradle_and_docker_build:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.shorten-sha.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: shorten sha
+        id: shorten-sha
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: oracle
+          java-version: 20
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ vars.AWS_REGION }}
+          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: login to ecr
+        id: login-to-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: pull docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-to-ecr.outputs.registry }}
+          ECR_REPOSITORY: estating_goldensheet_svc
+          IMAGE_TAG: ${{ steps.shorten-sha.outputs.sha }}
+        run: docker pull "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
